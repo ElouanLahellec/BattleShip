@@ -1,157 +1,29 @@
-﻿@page "/"
+@page "/"
 
 <PageTitle>BattleShip</PageTitle>
 
 <div class="container">
     <div class="content">
-        @if (!isGameStarted)
-        {
-                    <h1>Play a new Game</h1>
-                    <p>Welcome to your new app.</p>
-                    <button class="play-button" @onclick="StartGame">Play</button>
-                
-        }
-        else
-        {
-            @if (isLoading)
-            {
-                <div>
-                    <span class="loader"></span>
-                </div>
-                
-            }
-            else
-            {
-                <div class="inline">
-                    @* ai grid *@
-                    <div>
-                        <h1>AI grid</h1>
-                        <div class="game-grid">
-                            @for (int row = 0; row < gridRows; row++)
-                            {
-                                <div class="grid-row">
-                                    @for (int col = 0; col < gridCols; col++)
-                                    {
-                                        var localRow = row;
-                                        var localCol = col;
-                                        <div class="grid-cell@(GetCellState(aiTable, row, col))"
-                                             @onclick="() => HandleCellClick(localRow, localCol)"></div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                    @* player grid *@
-                    <div>
-                        <h1>Player grid</h1>
-                        <div class="game-grid">
-                            @for (int row = 0; row < gridRows; row++)
-                            {
-                                <div class="grid-row">
-                                    @for (int col = 0; col < gridCols; col++)
-                                    {
-                                        <div class="grid-cell@(GetCellState(playerTable, row, col) + GetCellPlacementState(row, col))"></div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-                
-                // Legend
-                <div class="inline legends">
-                    <div>
-                        <div class="grid-cell"></div>
-                        <p>Didn't get shot</p>
-                    </div>
-                    <div>
-                        <div class="grid-cell missed"></div>
-                        <p>It missed a shot</p>
-                    </div>
-                    <div>
-                        <div class="grid-cell touched"></div>
-                        <p>The boat is touched</p>
-                    </div>
-                    <div>
-                        <div class="grid-cell placed"></div>
-                        <p>One of your boat</p>
-                    </div>
-                </div>
-            }
-        }
+        <h1>BattleShip game</h1>
+        <div>
+            <a href="/play?aiMode=1">
+                <button class="play-button">Play against AI</button>
+            </a>
+        </div>
+        <div>
+            <a href="/play">
+                <button class="play-button">Create multiplayer room</button>
+            </a>
+        </div>
+        <div>
+            <input @bind="gameID" placeholder="Enter Game ID" />
+            <a href="/play?gameid=@gameID">
+                <button class="play-button" disabled="@(string.IsNullOrWhiteSpace(gameID))">Join room</button>
+            </a>
+        </div>
     </div>
 </div>
 
 @code {
-    private bool isGameStarted = false;
-    private bool isLoading = false;
-    private int gridRows = 10;  // Number of rows for the grid
-    private int gridCols = 10;  // Number of columns for the grid
-
-    private List<List<char>> playerPlacement;
-    private List<List<char>> playerTable;
-    private List<List<char>> aiTable;
-
-    private int win = 0; // 0 no winner, 1 player winner, 2 ai winner 
-
-    private void StartGame()
-    {
-        isGameStarted = true;
-        isLoading = false;
-        
-        // TODO call API for table
-        char[] possibleChars = { '\0', 'X', 'O' };
-        char[] possiblePlacementChars = { '\0', 'A', 'B', 'D', 'E'};
-
-        playerTable = CreateTable(possibleChars);
-        aiTable = CreateTable(possibleChars);
-        playerPlacement = CreateTable(possiblePlacementChars);
-    }
-
-    private void HandleCellClick(int row, int col)
-    {
-        // TODO Handle click with API
-        if (aiTable[row][col] == '\0')
-        {
-            aiTable[row][col] = 'X';
-        }
-    }
-
-    private String GetCellPlacementState(int row, int col)
-    {
-        return playerPlacement[row][col] != '\0' ? " placed" : "";
-    }
-    
-    private String GetCellState(List<List<char>> table, int row, int col)
-    {
-        if (table[row][col] == 'X')
-        {
-            return " missed";
-        }
-        if (table[row][col] == 'O')
-        {
-            return " touched";
-        }
-        return "";
-    }
-
-    private List<List<char>> CreateTable(char[] possibleChars)
-    {
-        List<List<char>> grid = new List<List<char>>();
-        Random random = new Random();
-        
-
-        for (int i = 0; i < 10; i++)
-        {
-            List<char> row = new List<char>();
-            for (int j = 0; j < 10; j++)
-            {
-                char randomChar = possibleChars[random.Next(possibleChars.Length)];
-                row.Add(randomChar);
-            }
-            grid.Add(row);
-        }
-
-        return grid;
-    }
+private string gameID = string.Empty; // Two-way binding for the input field
 }

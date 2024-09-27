@@ -34,6 +34,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSG9tZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/Pages/Play.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUGxheS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
