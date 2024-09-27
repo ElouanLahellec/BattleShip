@@ -1,0 +1,49 @@
+{
+  "Files": [
+    {
+      "Id": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/bin/Debug/net8.0/wwwroot/_framework/blazor.webassembly.js",
+      "PackagePath": "staticwebassets/_framework/blazor.webassembly.js"
+    },
+    {
+      "Id": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/obj/Debug/net8.0/compressed/k3eohm5xr1.gz",
+      "PackagePath": "staticwebassets/_framework/blazor.webassembly.js.gz"
+    },
+    {
+      "Id": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/wwwroot/css/app.css",
+      "PackagePath": "staticwebassets/css/app.css"
+    },
+    {
+      "Id": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/wwwroot/css/grid.css",
+      "PackagePath": "staticwebassets/css/grid.css"
+    },
+    {
+      "Id": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/wwwroot/css/home.css",
+      "PackagePath": "staticwebassets/css/home.css"
+    },
+    {
+      "Id": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/wwwroot/css/spinner.css",
+      "PackagePath": "staticwebassets/css/spinner.css"
+    },
+    {
+      "Id": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/wwwroot/index.html",
+      "PackagePath": "staticwebassets/index.html"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.BattleShip.App.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.BattleShip.App.props",
+      "PackagePath": "build\\BattleShip.App.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.BattleShip.App.props",
+      "PackagePath": "buildMultiTargeting\\BattleShip.App.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.BattleShip.App.props",
+      "PackagePath": "buildTransitive\\BattleShip.App.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

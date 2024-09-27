@@ -2059,27 +2059,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\eloua\\.nuget\\packages\\": {}
+    "/Users/chad/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\eloua\\Documents\\Ecole\\Cours\\S9\\ASP NET\\projet\\BatailleNavalle\\BattleShip.App\\BattleShip.App.csproj",
+      "projectUniqueName": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/BattleShip.App.csproj",
       "projectName": "BattleShip.App",
-      "projectPath": "C:\\Users\\eloua\\Documents\\Ecole\\Cours\\S9\\ASP NET\\projet\\BatailleNavalle\\BattleShip.App\\BattleShip.App.csproj",
-      "packagesPath": "C:\\Users\\eloua\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\eloua\\Documents\\Ecole\\Cours\\S9\\ASP NET\\projet\\BatailleNavalle\\BattleShip.App\\obj\\",
+      "projectPath": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/BattleShip.App.csproj",
+      "packagesPath": "/Users/chad/.nuget/packages/",
+      "outputPath": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.App/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\eloua\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/chad/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2147,7 +2144,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/Users/chad/.dotnet/sdk/8.0.401/PortableRuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {
