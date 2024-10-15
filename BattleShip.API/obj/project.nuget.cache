@@ -2,7 +2,7 @@
   "version": 2,
   "dgSpecHash": "lRQA9aaIlNs=",
   "success": true,
-  "projectFilePath": "C:\\Users\\eloua\\Documents\\Ecole\\Cours\\S9\\ASP NET\\projet\\BatailleNavalle\\BattleShip.API\\BattleShip.API.csproj",
+  "projectFilePath": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.API/BattleShip.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\eloua\\.nuget\\packages\\microsoft.aspnetcore.authentication.abstractions\\2.2.0\\microsoft.aspnetcore.authentication.abstractions.2.2.0.nupkg.sha512",
     "C:\\Users\\eloua\\.nuget\\packages\\microsoft.aspnetcore.authorization\\2.2.0\\microsoft.aspnetcore.authorization.2.2.0.nupkg.sha512",

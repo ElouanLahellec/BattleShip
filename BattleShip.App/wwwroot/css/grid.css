@@ -1,0 +1,30 @@
+
+.game-grid {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid-row {
+    display: flex;
+}
+
+.grid-cell {
+    width: 40px;
+    height: 40px;
+    background-color: lightblue;
+    border: 1px solid black;
+}
+
+.placed {
+    background-color: green;
+}
+
+.missed {
+    background-color: gray;
+}
+
+.touched {
+    background-color: red;
+}

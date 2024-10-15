@@ -1,28 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\eloua\\Documents\\Ecole\\Cours\\S9\\ASP NET\\projet\\BatailleNavalle\\BattleShip.API\\BattleShip.API.csproj": {}
+    "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.API/BattleShip.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\eloua\\Documents\\Ecole\\Cours\\S9\\ASP NET\\projet\\BatailleNavalle\\BattleShip.API\\BattleShip.API.csproj": {
+    "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.API/BattleShip.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\eloua\\Documents\\Ecole\\Cours\\S9\\ASP NET\\projet\\BatailleNavalle\\BattleShip.API\\BattleShip.API.csproj",
+        "projectUniqueName": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.API/BattleShip.API.csproj",
         "projectName": "BattleShip.API",
-        "projectPath": "C:\\Users\\eloua\\Documents\\Ecole\\Cours\\S9\\ASP NET\\projet\\BatailleNavalle\\BattleShip.API\\BattleShip.API.csproj",
-        "packagesPath": "C:\\Users\\eloua\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\eloua\\Documents\\Ecole\\Cours\\S9\\ASP NET\\projet\\BatailleNavalle\\BattleShip.API\\obj\\",
+        "projectPath": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.API/BattleShip.API.csproj",
+        "packagesPath": "/Users/chad/.nuget/packages/",
+        "outputPath": "/Users/chad/Nextcloud/Ales/docs/dotnet/BattleShip/BattleShip.API/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\eloua\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/chad/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -46,7 +43,27 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.AspNet.SignalR.Client": {
+              "target": "Package",
+              "version": "[2.4.3, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.AspNetCore.SignalR.Client": {
+              "target": "Package",
+              "version": "[9.0.0-rc.1.24452.1, )"
+            },
+            "Microsoft.AspNetCore.SignalR.Common": {
+              "target": "Package",
+              "version": "[9.0.0-rc.1.24452.1, )"
+            },
+            "Microsoft.AspNetCore.SignalR.Protocols.Json": {
+              "target": "Package",
+              "version": "[9.0.0-rc.1.24452.1, )"
+            },
+            "Microsoft.AspNetCore.WebUtilities": {
               "target": "Package",
               "version": "[8.0.8, )"
             },
@@ -78,7 +95,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/Users/chad/.dotnet/sdk/8.0.401/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

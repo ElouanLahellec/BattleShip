@@ -1,0 +1,178 @@
+@page "/play"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+
+<PageTitle>BattleShip</PageTitle>
+
+<div class="container">
+    <div class="content">
+        @if (_isLoading)
+        {
+            <div>
+                <h1>GameID: @(gameID)</h1>
+                <h2>Waiting for player</h2>
+                <span class="loader"></span>
+            </div>
+            
+        }
+        else
+        {
+            <div class="inline">
+                @* ai grid *@
+                <div>
+                    <h1>AI grid</h1>
+                    <div class="game-grid">
+                        @for (int row = 0; row < _gridRows; row++)
+                        {
+                            <div class="grid-row">
+                                @for (int col = 0; col < _gridCols; col++)
+                                {
+                                    var localRow = row;
+                                    var localCol = col;
+                                    <div class="grid-cell@(GetCellState(_opponentTable, row, col))"
+                                         @onclick="() => HandleCellClick(localRow, localCol)"></div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+                @* player grid *@
+                <div>
+                    <h1>Player grid</h1>
+                    <div class="game-grid">
+                        @for (int row = 0; row < _gridRows; row++)
+                        {
+                            <div class="grid-row">
+                                @for (int col = 0; col < _gridCols; col++)
+                                {
+                                    <div class="grid-cell@(GetCellState(_playerTable, row, col) + GetCellPlacementState(row, col))"></div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            // Legend
+            <div class="inline legends">
+                <div>
+                    <div class="grid-cell"></div>
+                    <p>Didn't get shot</p>
+                </div>
+                <div>
+                    <div class="grid-cell missed"></div>
+                    <p>It missed a shot</p>
+                </div>
+                <div>
+                    <div class="grid-cell touched"></div>
+                    <p>The boat is touched</p>
+                </div>
+                <div>
+                    <div class="grid-cell placed"></div>
+                    <p>One of your boat</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private bool _isLoading = true;
+    private String gameID = GenerateRandomString();
+    private String token = "";
+    private int _gridRows = 10;  // Number of rows for the grid
+    private int _gridCols = 10;  // Number of columns for the grid
+
+    private List<List<char>> _playerPlacement;
+    private List<List<char>> _playerTable;
+    private List<List<char>> _opponentTable;
+
+    private bool myTurn;
+    
+    private HubConnection _hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _playerPlacement = GenerateEmptyPlate(_gridRows, _gridCols);
+        _playerTable = GenerateEmptyPlate(_gridRows, _gridCols);
+        _opponentTable = GenerateEmptyPlate(_gridRows, _gridCols);
+        
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        if (queryParams.TryGetValue("gameid", out var gameID))
+        {
+            this.gameID = gameID;
+        }
+
+        if (this.gameID.Length > 0)
+        {
+
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/play"))
+                .Build();
+
+            _hubConnection.On<List<List<char>>>("StartGame", (myPlacement) => { _playerPlacement = myPlacement; });
+            _hubConnection.On("YourTurn", () => { myTurn = true; });
+            _hubConnection.On<int, int>("Play", (x, y) => { _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'O' : 'X'; });
+
+            await _hubConnection.InvokeAsync<string>("Join", gameID);
+
+            await _hubConnection.StartAsync();
+        }
+    }
+
+    private async void HandleCellClick(int row, int col)
+    {
+        if (myTurn && _opponentTable[row][col] == '\0')
+        {
+            myTurn = false;
+            
+            _opponentTable[row][col] = 'X';
+            await _hubConnection.InvokeAsync("Play", row, col);
+        }
+    }
+
+    private String GetCellPlacementState(int row, int col)
+    {
+        return _playerPlacement[row][col] != '\0' ? " placed" : "";
+    }
+    
+    private String GetCellState(List<List<char>> table, int row, int col)
+    {
+        if (table[row][col] == 'X')
+        {
+            return " missed";
+        }
+        if (table[row][col] == 'O')
+        {
+            return " touched";
+        }
+        return "";
+    }
+    
+    private static string GenerateRandomString(int length = 6)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var random = new Random();
+        return new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
+    private static List<List<char>> GenerateEmptyPlate(int width, int height)
+    {
+        List<List<char>> grid = new List<List<char>>();
+
+        for (int i = 0; i < width; i++)
+        {
+            List<char> row = new List<char>();
+            for (int j = 0; j < height; j++)
+            {
+                row.Add('\0');
+            }
+            grid.Add(row);
+        }
+
+        return grid;
+    }
+}
