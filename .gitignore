@@ -402,3 +402,5 @@ BattleShip.Models/obj/*
 BattleShip.App/obj/*
 
 BattleShip.App/bin/*
+
+*.wasm
