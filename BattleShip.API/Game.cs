@@ -13,12 +13,16 @@ public class Game
     public User userA {  get; set; }
     public User userB {  get; set; }
     public User playingPlayer {  get; set; }
+    public bool aiMode { get; set; }
+    public int aiDiff { get; set; }
 
     public Game(String id, User userA)
     {
         this.id = id;
         this.userA = userA;
-        this.playingPlayer = userA;
+        playingPlayer = userA;
+        aiMode = false;
+        aiDiff = 0;
     }
 
     public bool isReady()
@@ -28,13 +32,12 @@ public class Game
 
     public void switchPlayingPlayer()
     {
-        if (playingPlayer == userA)
-        {
-            playingPlayer = userB;
-        }
-        else
-        {
-            playingPlayer = userA;
-        }
+        if (playingPlayer == userA) playingPlayer = userB; else playingPlayer = userA;
+    }
+
+    public List<int> playAI()
+    {
+        Random random = new Random();
+        return [random.Next(userA.board.grid.Count), random.Next(userA.board.grid[0].Count)];
     }
 }

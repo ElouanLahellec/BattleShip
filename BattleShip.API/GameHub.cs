@@ -23,6 +23,7 @@ public class GameHub : Hub
         }
         else
         {
+            if (game.state != GameState.WAITING) return;
             game = memory.rooms[room];
             memory.rooms[room].userB = user;
             
@@ -48,12 +49,37 @@ public class GameHub : Hub
         }
     }
 
+    public async Task AskAIToJoin(string aiMode)
+    {
+        if (aiMode == "1" || aiMode == "2" || aiMode == "3")
+        {
+            Memory memory = Memory.GetInstance();
+            User user = memory.users[Context.ConnectionId];
+            Game game = user.Game;
+            game.aiMode = true;
+            game.aiDiff = Int32.Parse(aiMode);
+            
+            await Clients.Client(game.userA.id).SendAsync("StartGame", game.userA.board.PlaceRdmBoats());
+            game.playAI();
+            await Clients.Client(game.userA.id).SendAsync("YourTurn");
+        }
+    }
+
     public async Task<char> Play(int coordX, int coordY)
     {
         Memory memory = Memory.GetInstance();
         User user = memory.users[Context.ConnectionId];
-        await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
-        user.Game.switchPlayingPlayer();
+        if (user.Game.aiMode)
+        {
+            List<int> coords = user.Game.playAI();
+            await Clients.Client(user.id).SendAsync("Play", coords[0], coords[1]);
+        }
+        else
+        {
+            await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
+            user.Game.switchPlayingPlayer();
+        }
+
         await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
         return 'X';
     }

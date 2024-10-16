@@ -42,18 +42,18 @@
                 {
                     <h1>Your LOSE!</h1>
                 }
-                <div class="button newgame" @onclick="() => AskNewGame()">
-                    <h2>Start a new game</h2>
+                <div class="inline">
+                    <button class="play-button" @onclick="() => AskNewGame()">Start a new game</button>
                 </div>
             } else
             {
                 @if (myTurn)
                 {
-                    <h3>Your turn</h3>
+                    <h1>Your turn</h1>
                 }
                 else
                 {
-                    <h3>Opponent turn</h3>
+                    <h1>Opponent turn</h1>
                 }
             }
             
@@ -120,7 +120,7 @@
 @code {
     private bool _isLoading = true;
     private String gameID = GenerateRandomString();
-    private String token = "";
+    private String aiMode = "";
     private int _gridRows = 10;  // Number of rows for the grid
     private int _gridCols = 10;  // Number of columns for the grid
 
@@ -146,6 +146,9 @@
         {
             this.gameID = gameID.ToString();
         }
+
+        aiMode = queryParams.GetValueOrDefault("aiMode", "0");
+        
 
         if (this.gameID.Length > 0)
         {
@@ -184,6 +187,8 @@
             
             await _hubConnection.StartAsync();
             await _hubConnection.SendAsync("Join", this.gameID);
+            if (aiMode != "0")
+                await _hubConnection.SendAsync("AskAIToJoin", aiMode);
         }
         Console.WriteLine("Setup done");
     }
@@ -259,6 +264,13 @@
 
     private async void AskNewGame()
     {
-        await _hubConnection.InvokeAsync("CreateNewGame");
+        if (aiMode == "0")
+        {
+            await _hubConnection.InvokeAsync("CreateNewGame");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("window.location.replace", $"/play?aiMode={aiMode}");
+        }
     }
 }

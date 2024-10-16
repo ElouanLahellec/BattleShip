@@ -6,7 +6,7 @@ namespace BattleShip.API
 {
     public class Board
     {
-        private List<List<char>> grid { get; set; }
+        public List<List<char>> grid { get; set; }
        
         public Board() 
         {
