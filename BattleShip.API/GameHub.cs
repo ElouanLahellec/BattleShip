@@ -55,6 +55,6 @@ public class GameHub : Hub
         await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
         user.Game.switchPlayingPlayer();
         await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
-        return 'X';
+        return user.opponent.board.IsHit(coordX, coordY);
     }
 }
