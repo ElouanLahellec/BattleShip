@@ -8,8 +8,22 @@
     <div class="content">
         @if (_isLoading)
         {
+            <script>
+                function copyToClipboard(text) {
+                    const tempInput = document.createElement('input');
+                    tempInput.value = text;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    alert('URL copied to clipboard');
+                }
+            </script>
             <div>
                 <h1>GameID: @(gameID)</h1>
+                <a href="javascript:void(0)" onclick="copyToClipboard('@(Config.WEB_URL)/play?gameid=@(gameID)')">
+                    <p>@(Config.WEB_URL)/play?gameid=@(gameID)</p>
+                </a>
                 <h2>Waiting for player</h2>
                 <span class="loader"></span>
             </div>
@@ -20,7 +34,7 @@
             <div class="inline">
                 @* ai grid *@
                 <div>
-                    <h1>AI grid</h1>
+                    <h1>Opponent grid</h1>
                     <div class="game-grid">
                         @for (int row = 0; row < _gridRows; row++)
                         {
@@ -36,6 +50,16 @@
                         }
                     </div>
                 </div>
+                
+                @if (myTurn)
+                {
+                    <h3>Your turn</h3>
+                }
+                else
+                {
+                    <h3>Opponent turn</h3>
+                }
+                
                 @* player grid *@
                 <div>
                     <h1>Player grid</h1>
@@ -109,7 +133,7 @@
         {
 
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri("http://localhost:5256/play"))
+                .WithUrl(NavigationManager.ToAbsoluteUri(Config.API_URL))
                 .Build();
 
             _hubConnection.On<List<List<char>>>("StartGame", (myPlacement) =>
@@ -117,16 +141,22 @@
                 Console.WriteLine("StartGame");
                 _isLoading = false;
                 _playerPlacement = myPlacement;
+                
+                InvokeAsync(StateHasChanged);
             });
             _hubConnection.On("YourTurn", () =>
             {
                 Console.WriteLine("YourTurn");
                 myTurn = true;
+                
+                InvokeAsync(StateHasChanged);
             });
             _hubConnection.On<int, int>("Play", (x, y) =>
             {
                 Console.WriteLine("Play");
                 _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'O' : 'X';
+                
+                InvokeAsync(StateHasChanged);
             });
             
             await _hubConnection.StartAsync();
