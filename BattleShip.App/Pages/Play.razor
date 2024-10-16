@@ -102,7 +102,7 @@
 
         if (queryParams.TryGetValue("gameid", out var gameID))
         {
-            this.gameID = gameID;
+            this.gameID = gameID.ToString();
         }
 
         if (this.gameID.Length > 0)
@@ -115,10 +115,9 @@
             _hubConnection.On<List<List<char>>>("StartGame", (myPlacement) => { _playerPlacement = myPlacement; });
             _hubConnection.On("YourTurn", () => { myTurn = true; });
             _hubConnection.On<int, int>("Play", (x, y) => { _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'O' : 'X'; });
-
-            await _hubConnection.InvokeAsync<string>("Join", gameID);
-
+            
             await _hubConnection.StartAsync();
+            await _hubConnection.SendAsync("Join", this.gameID);
         }
     }
 

@@ -6,9 +6,15 @@ using Microsoft.AspNetCore.SignalR;
 public class GameHub : Hub
 {
     private Dictionary<string, User> users = new();
-
-    public async void Join(string room)
+    
+    public GameHub(ILogger<GameHub> logger)
     {
+        Console.WriteLine("Initializing GameHub");
+    }
+
+    public async Task Join(string room)
+    {
+        Console.WriteLine($"User {Context.ConnectionId} joined room {room}");
         if (users.Count != 0)
         {
             users.Add(Context.ConnectionId, new User(Context.ConnectionId, room, users.First().Key));
@@ -23,7 +29,7 @@ public class GameHub : Hub
         }
     }
 
-    public async void Play(int coordX, int coordY)
+    public async Task Play(int coordX, int coordY)
     {
         if (users.TryGetValue(Context.ConnectionId, out User user))
         {
