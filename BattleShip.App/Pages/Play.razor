@@ -103,12 +103,12 @@
                     <div class="game-grid">
                         @for (int row = 0; row < _gridRows; row++)
                         {
-                            <div class="grid-row">
-                                @for (int col = 0; col < _gridCols; col++)
-                                {
-                                    <div class="grid-cell@(GetCellState(_playerTable, row, col) + GetCellPlacementState(row, col))"></div>
-                                }
-                            </div>
+                        <div class="grid-row">
+                            @for (int col = 0; col < _gridCols; col++)
+                            {
+                            <div class="grid-cell@(GetCellState(_playerTable, row, col) + GetCellPlacementState(row, col))"></div>
+                            }
+                        </div>
                         }
                     </div>
                 </div>
@@ -205,11 +205,6 @@
             InvokeAsync(StateHasChanged);
         }
     }
-
-    private String GetCellPlacementState(int row, int col)
-    {
-        return _playerPlacement[row][col] != '\0' ? " placed" : "";
-    }
     
     private String GetCellState(List<List<char>> table, int row, int col)
     {
@@ -272,5 +267,47 @@
         {
             await JS.InvokeVoidAsync("window.location.replace", $"/play?aiMode={aiMode}");
         }
+    }
+
+    private String GetCellPlacementState(int row, int col)
+    {
+        if (_playerPlacement[row][col] == '\0')
+            return "";
+
+        var boatPart = _playerPlacement[row][col];
+
+        // Determine if it's an end or middle part
+        bool isEnd = IsBoatEnd(row, col, boatPart);
+
+        // Determine the rotation based on the surrounding cells
+        string rotationClass = GetBoatRotation(row, col, boatPart);
+
+        return (isEnd ? " ship-end" : " ship-middle") + " " + rotationClass;
+    }
+   
+    private bool IsBoatEnd(int row, int col, char boatPart)
+    {
+        // Check surrounding cells to determine if the current cell is at the end of the boat
+        // Adjust conditions to define what constitutes an 'end' (e.g., boundary or different cell).
+        int count = 0;
+        if (row > 0 && _playerPlacement[row - 1][col] == boatPart) count++;
+        if (row < _gridRows-1 && _playerPlacement[row + 1][col] == boatPart) count++;
+        if (col > 0 && _playerPlacement[row][col - 1] == boatPart) count++;
+        if (col < _gridCols-1 && _playerPlacement[row][col + 1] == boatPart) count++;
+        return count == 1;
+    }
+
+    private string GetBoatRotation(int row, int col, char boatPart)
+    {
+        if (row > 0 && _playerPlacement[row - 1][col] == boatPart)
+            return "rotate-down"; // Boat is vertical, down
+        if (row < _gridRows - 1 && _playerPlacement[row + 1][col] == boatPart)
+            return "rotate-up";   // Boat is vertical, up
+        if (col > 0 && _playerPlacement[row][col - 1] == boatPart)
+            return "rotate-right"; // Boat is horizontal, right
+        if (col < _gridCols - 1 && _playerPlacement[row][col + 1] == boatPart)
+            return "rotate-left";  // Boat is horizontal, left
+
+        return "rotate-right"; // Default rotation
     }
 }

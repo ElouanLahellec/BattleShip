@@ -32,3 +32,32 @@
 .disabled {
     opacity: 0.2;
 }
+
+
+.ship-end, .ship-middle {
+    background-size: 100% 100%;
+}
+
+.ship-middle {
+    background-image: url('/images/ship_middle.png');
+}
+
+.ship-end {
+    background-image: url('/images/ship_end.png');
+}
+
+.rotate-right {
+    transform: rotate(0deg);
+}
+
+.rotate-left {
+    transform: rotate(180deg);
+}
+
+.rotate-up {
+    transform: rotate(-90deg);
+}
+
+.rotate-down {
+    transform: rotate(90deg);
+}
