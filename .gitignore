@@ -404,3 +404,8 @@ BattleShip.App/obj/*
 BattleShip.App/bin/*
 
 *.wasm
+BattleShip.Models/BattleShip.Models.csproj
+
+BattleShip.App/BattleShip.App.csproj
+
+BattleShip.API/bin/
