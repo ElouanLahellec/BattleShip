@@ -1,6 +1,7 @@
 @page "/play"
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 
 <PageTitle>BattleShip</PageTitle>
 
@@ -31,14 +32,32 @@
         }
         else
         {
-            @if (myTurn)
+            @if (ended != 0)
             {
-                <h3>Your turn</h3>
-            }
-            else
+                if (ended == 1)
+                {
+                    <h1>Your WON!</h1>
+                }
+                else
+                {
+                    <h1>Your LOSE!</h1>
+                }
+                <div class="button newgame" @onclick="() => AskNewGame()">
+                    <h2>Start a new game</h2>
+                </div>
+            } else
             {
-                <h3>Opponent turn</h3>
+                @if (myTurn)
+                {
+                    <h3>Your turn</h3>
+                }
+                else
+                {
+                    <h3>Opponent turn</h3>
+                }
             }
+            
+
             <div class="inline">
                 <div class="legends">
                     <div>
@@ -109,7 +128,8 @@
     private List<List<char>> _playerTable;
     private List<List<char>> _opponentTable;
 
-    private bool myTurn;
+    private bool myTurn = false;
+    private int ended = 0;
     
     private HubConnection _hubConnection;
 
@@ -153,8 +173,13 @@
             {
                 Console.WriteLine("Play");
                 _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'X' : 'O';
-                
+
+                checkWin();
                 InvokeAsync(StateHasChanged);
+            });
+            _hubConnection.On<string>("OpenNewGame", async gameid =>
+            {
+                await JS.InvokeVoidAsync("window.location.replace", $"/play?gameid={gameid}");
             });
             
             await _hubConnection.StartAsync();
@@ -217,5 +242,23 @@
         }
 
         return grid;
+    }
+
+    private void checkWin()
+    {
+        if (_playerTable.SelectMany(row => row).Count(c => c == 'O') >= 17)
+        {
+            myTurn = true;
+            ended = 2;
+        } else if (_opponentTable.SelectMany(row => row).Count(c => c == 'O') >= 17)
+        {
+            myTurn = true;
+            ended = 1;
+        }
+    }
+
+    private async void AskNewGame()
+    {
+        await _hubConnection.InvokeAsync("CreateNewGame");
     }
 }
