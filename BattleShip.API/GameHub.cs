@@ -20,7 +20,6 @@ public class GameHub : Hub
         {
             memory.rooms.Add(room, new Game(room, user));
             game = memory.rooms[room];
-            user.Game = game;
         }
         else
         {
@@ -31,6 +30,7 @@ public class GameHub : Hub
             game.userA.opponent = game.userB;
             game.playingPlayer = game.userB;
         }
+        user.Game = game;
         
         Console.WriteLine($"User {Context.ConnectionId} joined room {room}");
         if (game.isReady())
@@ -52,11 +52,9 @@ public class GameHub : Hub
     public async Task Play(int coordX, int coordY)
     {
         Memory memory = Memory.GetInstance();
-        if (memory.users.TryGetValue(Context.ConnectionId, out User user))
-        {
-            await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
-            user.Game.switchPlayingPlayer();
-            await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
-        }
+        User user = memory.users[Context.ConnectionId];
+        await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
+        user.Game.switchPlayingPlayer();
+        await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
     }
 }
