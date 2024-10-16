@@ -1,26 +1,18 @@
-﻿namespace BattleShip.API
+﻿using BattleShip.API;
+
+namespace BattleShip.API;
+    
+    
+public class User
 {
-    public class User
+    public string id {  get; }
+    public Game Game { get; set; }
+    public User opponent {  get; set; }
+
+    public User(string id)
     {
-        private string id {  get; set; }
-        private string gameId { get; set; }
-        private string opponent {  get; set; }
-
-        public User(string id, string gameId, string opponent)
-        {
-            this.id = id;
-            this.gameId = gameId;
-            this.opponent = opponent;
-        }
-
-        public void SetOpponent(string opponent)
-        {
-            this.opponent = opponent;
-        }
-
-        public string GetOpponent()
-        {
-            return opponent;
-        }
+        this.id = id;
     }
+    
+    
 }
