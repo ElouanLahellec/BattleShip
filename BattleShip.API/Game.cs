@@ -13,6 +13,7 @@ public class Game
     public User userA {  get; set; }
     public User userB {  get; set; }
     public User playingPlayer {  get; set; }
+    
     public bool aiMode { get; set; }
     public int aiDiff { get; set; }
 

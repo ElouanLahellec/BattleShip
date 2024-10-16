@@ -23,30 +23,15 @@ public class GameHub : Hub
         }
         else
         {
-            if (game.state != GameState.WAITING) return;
             game = memory.rooms[room];
-            memory.rooms[room].userB = user;
-            
-            game.userB.opponent = game.userA;
-            game.userA.opponent = game.userB;
+            if (game.state != GameState.WAITING) return;
+            game.userB = user;
             game.playingPlayer = game.userB;
         }
         user.Game = game;
         
         Console.WriteLine($"User {Context.ConnectionId} joined room {room}");
-        if (game.isReady())
-        {
-            Console.WriteLine("Starting game");
-            game.state = GameState.PLAYING;
-            
-            Console.WriteLine($"Sending StartGame to userA with ID: {game.userA.id}");
-            Console.WriteLine($"Sending StartGame to userB with ID: {game.userB.id}");
-            await Clients.Client(game.userA.id).SendAsync("StartGame", game.userA.board.PlaceRdmBoats());
-            await Clients.Client(game.userB.id).SendAsync("StartGame", game.userB.board.PlaceRdmBoats());
-            
-            await Clients.Client(game.playingPlayer.id).SendAsync("YourTurn");
-            Console.WriteLine("Game started");
-        }
+        await startGame(game);
     }
 
     public async Task AskAIToJoin(string aiMode)
@@ -56,12 +41,35 @@ public class GameHub : Hub
             Memory memory = Memory.GetInstance();
             User user = memory.users[Context.ConnectionId];
             Game game = user.Game;
+            game.userB = new User();
+            game.userB.Game = game;
             game.aiMode = true;
             game.aiDiff = Int32.Parse(aiMode);
+
+            startGame(game);
             
-            await Clients.Client(game.userA.id).SendAsync("StartGame", game.userA.board.PlaceRdmBoats());
             game.playAI();
-            await Clients.Client(game.userA.id).SendAsync("YourTurn");
+        }
+    }
+
+    private async Task startGame(Game game)
+    {
+        
+        if (game.isReady())
+        {
+            Console.WriteLine("Starting game");
+            game.userB.opponent = game.userA;
+            game.userA.opponent = game.userB;
+            game.state = GameState.PLAYING;
+            
+            Console.WriteLine($"Sending StartGame to userA with ID: {game.userA.id}");
+            Console.WriteLine($"Sending StartGame to userB with ID: {game.userB.id}");
+            await Clients.Client(game.userA.id).SendAsync("StartGame", game.userA.board.PlaceRdmBoats());
+            if (!game.aiMode)
+                await Clients.Client(game.userB.id).SendAsync("StartGame", game.userB.board.PlaceRdmBoats());
+            
+            await Clients.Client(game.playingPlayer.id).SendAsync("YourTurn");
+            Console.WriteLine("Game started");
         }
     }
 
@@ -71,6 +79,7 @@ public class GameHub : Hub
         User user = memory.users[Context.ConnectionId];
         if (!user.Equals(user.Game.playingPlayer))
             throw new InvalidOperationException("Ce n'est pas votre tour de jouer.");
+
         if (user.Game.aiMode)
         {
             List<int> coords = user.Game.playAI();
