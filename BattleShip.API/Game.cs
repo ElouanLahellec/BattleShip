@@ -52,14 +52,14 @@ public class Game
         coords.Add(coordX);
         coords.Add(coordY);
         int count = 0;
-        if (userA.Equals(user))
+        if (userA.Equals(user) && !playsUserA.Contains(coords))
         {
             playsUserA.Add(coords);
             if (isHit)
                 hitsUserA++;
             count = hitsUserA;
         }
-        else if (userB.Equals(user))
+        else if (userB.Equals(user) && !playsUserB.Contains(coords))
         {
             playsUserB.Add(coords);
             if (isHit)
