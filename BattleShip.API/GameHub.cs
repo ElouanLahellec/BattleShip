@@ -57,4 +57,24 @@ public class GameHub : Hub
         await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
         return 'X';
     }
+
+    public async Task CreateNewGame()
+    {
+        Memory memory = Memory.GetInstance();
+        User user = memory.users[Context.ConnectionId];
+
+        string gameid = GenerateRandomString();
+        
+        await Clients.Client(user.Game.userA.id).SendAsync("OpenNewGame", gameid);
+        await Clients.Client(user.Game.userB.id).SendAsync("OpenNewGame", gameid);
+    }
+    
+    
+    private static string GenerateRandomString(int length = 6)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var random = new Random();
+        return new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
 }
