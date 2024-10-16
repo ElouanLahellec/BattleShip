@@ -112,13 +112,27 @@
                 .WithUrl(NavigationManager.ToAbsoluteUri("http://localhost:5256/play"))
                 .Build();
 
-            _hubConnection.On<List<List<char>>>("StartGame", (myPlacement) => { _playerPlacement = myPlacement; });
-            _hubConnection.On("YourTurn", () => { myTurn = true; });
-            _hubConnection.On<int, int>("Play", (x, y) => { _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'O' : 'X'; });
+            _hubConnection.On<List<List<char>>>("StartGame", (myPlacement) =>
+            {
+                Console.WriteLine("StartGame");
+                _isLoading = false;
+                _playerPlacement = myPlacement;
+            });
+            _hubConnection.On("YourTurn", () =>
+            {
+                Console.WriteLine("YourTurn");
+                myTurn = true;
+            });
+            _hubConnection.On<int, int>("Play", (x, y) =>
+            {
+                Console.WriteLine("Play");
+                _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'O' : 'X';
+            });
             
             await _hubConnection.StartAsync();
             await _hubConnection.SendAsync("Join", this.gameID);
         }
+        Console.WriteLine("Setup done");
     }
 
     private async void HandleCellClick(int row, int col)

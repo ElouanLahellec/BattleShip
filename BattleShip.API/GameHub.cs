@@ -29,6 +29,7 @@ public class GameHub : Hub
             
             game.userB.opponent = game.userA;
             game.userA.opponent = game.userB;
+            game.playingPlayer = game.userB;
         }
         
         Console.WriteLine($"User {Context.ConnectionId} joined room {room}");
@@ -37,9 +38,13 @@ public class GameHub : Hub
             Console.WriteLine("Starting game");
             game.state = GameState.PLAYING;
             
+            Console.WriteLine($"Sending StartGame to userA with ID: {game.userA.id}");
+            Console.WriteLine($"Sending StartGame to userB with ID: {game.userB.id}");
             Board randomBoard = new Board();
             await Clients.Client(game.userA.id).SendAsync("StartGame", randomBoard.PlaceRdmBoats());
             await Clients.Client(game.userB.id).SendAsync("StartGame", randomBoard.PlaceRdmBoats());
+            
+            await Clients.Client(game.playingPlayer.id).SendAsync("YourTurn");
             Console.WriteLine("Game started");
         }
     }
@@ -50,7 +55,8 @@ public class GameHub : Hub
         if (memory.users.TryGetValue(Context.ConnectionId, out User user))
         {
             await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
-            await Clients.Client(user.opponent.id).SendAsync("YourTurn");
+            user.Game.switchPlayingPlayer();
+            await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
         }
     }
 }
