@@ -40,9 +40,8 @@ public class GameHub : Hub
             
             Console.WriteLine($"Sending StartGame to userA with ID: {game.userA.id}");
             Console.WriteLine($"Sending StartGame to userB with ID: {game.userB.id}");
-            Board randomBoard = new Board();
-            await Clients.Client(game.userA.id).SendAsync("StartGame", randomBoard.PlaceRdmBoats());
-            await Clients.Client(game.userB.id).SendAsync("StartGame", randomBoard.PlaceRdmBoats());
+            await Clients.Client(game.userA.id).SendAsync("StartGame", game.userA.board.PlaceRdmBoats());
+            await Clients.Client(game.userB.id).SendAsync("StartGame", game.userB.board.PlaceRdmBoats());
             
             await Clients.Client(game.playingPlayer.id).SendAsync("YourTurn");
             Console.WriteLine("Game started");
