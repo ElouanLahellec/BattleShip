@@ -171,6 +171,8 @@
             
             char result = await _hubConnection.InvokeAsync<char>("Play", row, col);
             _opponentTable[row][col] = result;
+            
+            InvokeAsync(StateHasChanged);
         }
     }
 
