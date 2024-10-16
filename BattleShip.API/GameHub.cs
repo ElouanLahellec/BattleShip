@@ -1,4 +1,4 @@
-﻿using BattleShip.API;
+using BattleShip.API;
 using Microsoft.AspNetCore.SignalR;
 
 using Microsoft.AspNetCore.SignalR;
@@ -24,24 +24,49 @@ public class GameHub : Hub
         else
         {
             game = memory.rooms[room];
-            memory.rooms[room].userB = user;
-            
-            game.userB.opponent = game.userA;
-            game.userA.opponent = game.userB;
+            if (game.state != GameState.WAITING) return;
+            game.userB = user;
             game.playingPlayer = game.userB;
         }
         user.Game = game;
         
         Console.WriteLine($"User {Context.ConnectionId} joined room {room}");
+        await startGame(game);
+    }
+
+    public async Task AskAIToJoin(string aiMode)
+    {
+        if (aiMode == "1" || aiMode == "2" || aiMode == "3")
+        {
+            Memory memory = Memory.GetInstance();
+            User user = memory.users[Context.ConnectionId];
+            Game game = user.Game;
+            game.userB = new User();
+            game.userB.Game = game;
+            game.aiMode = true;
+            game.aiDiff = Int32.Parse(aiMode);
+
+            startGame(game);
+            
+            game.playAI();
+        }
+    }
+
+    private async Task startGame(Game game)
+    {
+        
         if (game.isReady())
         {
             Console.WriteLine("Starting game");
+            game.userB.opponent = game.userA;
+            game.userA.opponent = game.userB;
             game.state = GameState.PLAYING;
             
             Console.WriteLine($"Sending StartGame to userA with ID: {game.userA.id}");
             Console.WriteLine($"Sending StartGame to userB with ID: {game.userB.id}");
             await Clients.Client(game.userA.id).SendAsync("StartGame", game.userA.board.PlaceRdmBoats());
-            await Clients.Client(game.userB.id).SendAsync("StartGame", game.userB.board.PlaceRdmBoats());
+            if (!game.aiMode)
+                await Clients.Client(game.userB.id).SendAsync("StartGame", game.userB.board.PlaceRdmBoats());
             
             await Clients.Client(game.playingPlayer.id).SendAsync("YourTurn");
             Console.WriteLine("Game started");
@@ -61,8 +86,16 @@ public class GameHub : Hub
             { 
                 user.Game.state = GameState.RESULT;
             }
-            await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
-            user.Game.switchPlayingPlayer();
+            if (user.Game.aiMode)
+            {
+                List<int> coords = user.Game.playAI();
+                await Clients.Client(user.id).SendAsync("Play", coords[0], coords[1]);
+            }
+            else
+            {
+                await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
+                user.Game.switchPlayingPlayer();
+            }
             await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
             return result ? 'O' : 'X';
         }

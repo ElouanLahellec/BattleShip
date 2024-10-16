@@ -17,6 +17,9 @@ public class Game
     public List<List<int>> playsUserB { get; set; }
     public int hitsUserA {  get; set; }
     public int hitsUserB { get; set; }
+    
+    public bool aiMode { get; set; }
+    public int aiDiff { get; set; }
 
 
     public Game(String id, User userA)
@@ -28,6 +31,9 @@ public class Game
         playsUserB = new List<List<int>>();
         int hitsUserA = 0;
         int hitsUserB = 0;
+        playingPlayer = userA;
+        aiMode = false;
+        aiDiff = 0;
     }
 
     public bool isReady()
@@ -37,14 +43,7 @@ public class Game
 
     public void switchPlayingPlayer()
     {
-        if (playingPlayer == userA)
-        {
-            playingPlayer = userB;
-        }
-        else
-        {
-            playingPlayer = userA;
-        }
+        if (playingPlayer == userA) playingPlayer = userB; else playingPlayer = userA;
     }
 
     public int AddCoords(User user, int coordX, int coordY, bool isHit)
@@ -68,5 +67,11 @@ public class Game
             count = hitsUserB;
         }
         return count;
+    }
+
+    public List<int> playAI()
+    {
+        Random random = new Random();
+        return [random.Next(userA.board.grid.Count), random.Next(userA.board.grid[0].Count)];
     }
 }

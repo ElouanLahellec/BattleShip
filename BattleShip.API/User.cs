@@ -10,10 +10,15 @@ public class User
     public User opponent {  get; set; }
     public Board board { get; set; }
 
+    public User()
+    {
+        board = new Board();
+    }
+    
     public User(string id)
     {
         this.id = id;
-        this.board = new Board();
+        board = new Board();
     }
     
     

@@ -25,6 +25,7 @@ div>a>.play-button {
     font-size: 16px;
     cursor: pointer;
     width: 200px;
+    text-decoration: none;
 }
 
 div>.play-input {
