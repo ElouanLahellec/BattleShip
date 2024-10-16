@@ -109,7 +109,7 @@
         {
 
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri("/play"))
+                .WithUrl(NavigationManager.ToAbsoluteUri("http://localhost:5256/play"))
                 .Build();
 
             _hubConnection.On<List<List<char>>>("StartGame", (myPlacement) => { _playerPlacement = myPlacement; });
