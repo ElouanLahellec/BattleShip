@@ -28,3 +28,7 @@
 .touched {
     background-color: red;
 }
+
+.disabled {
+    opacity: 0.2;
+}

@@ -31,8 +31,35 @@
         }
         else
         {
+            @if (myTurn)
+            {
+                <h3>Your turn</h3>
+            }
+            else
+            {
+                <h3>Opponent turn</h3>
+            }
             <div class="inline">
-                @* ai grid *@
+                <div class="legends">
+                    <div>
+                        <div class="grid-cell"></div>
+                        <p>Not shotted</p>
+                    </div>
+                    <div>
+                        <div class="grid-cell missed"></div>
+                        <p>Shot missed</p>
+                    </div>
+                    <div>
+                        <div class="grid-cell touched"></div>
+                        <p>Touched boat</p>
+                    </div>
+                    <div>
+                        <div class="grid-cell placed"></div>
+                        <p>Your boat</p>
+                    </div>
+                </div>
+                
+                @* opponent grid *@
                 <div>
                     <h1>Opponent grid</h1>
                     <div class="game-grid">
@@ -43,26 +70,17 @@
                                 {
                                     var localRow = row;
                                     var localCol = col;
-                                    <div class="grid-cell@(GetCellState(_opponentTable, row, col))"
+                                    <div class="grid-cell@(GetCellState(_opponentTable, row, col)) @(myTurn ? "" : " disabled")"
                                          @onclick="() => HandleCellClick(localRow, localCol)"></div>
                                 }
                             </div>
                         }
                     </div>
                 </div>
-                
-                @if (myTurn)
-                {
-                    <h3>Your turn</h3>
-                }
-                else
-                {
-                    <h3>Opponent turn</h3>
-                }
-                
+
                 @* player grid *@
                 <div>
-                    <h1>Player grid</h1>
+                    <h1>Your grid</h1>
                     <div class="game-grid">
                         @for (int row = 0; row < _gridRows; row++)
                         {
@@ -74,26 +92,6 @@
                             </div>
                         }
                     </div>
-                </div>
-            </div>
-            
-            // Legend
-            <div class="inline legends">
-                <div>
-                    <div class="grid-cell"></div>
-                    <p>Didn't get shot</p>
-                </div>
-                <div>
-                    <div class="grid-cell missed"></div>
-                    <p>It missed a shot</p>
-                </div>
-                <div>
-                    <div class="grid-cell touched"></div>
-                    <p>The boat is touched</p>
-                </div>
-                <div>
-                    <div class="grid-cell placed"></div>
-                    <p>One of your boat</p>
                 </div>
             </div>
         }
@@ -154,7 +152,7 @@
             _hubConnection.On<int, int>("Play", (x, y) =>
             {
                 Console.WriteLine("Play");
-                _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'O' : 'X';
+                _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'X' : 'O';
                 
                 InvokeAsync(StateHasChanged);
             });
@@ -171,8 +169,8 @@
         {
             myTurn = false;
             
-            _opponentTable[row][col] = 'X';
-            await _hubConnection.InvokeAsync("Play", row, col);
+            char result = await _hubConnection.InvokeAsync<char>("Play", row, col);
+            _opponentTable[row][col] = result;
         }
     }
 
@@ -185,11 +183,11 @@
     {
         if (table[row][col] == 'X')
         {
-            return " touched";
+            return " missed";
         }
         if (table[row][col] == 'O')
         {
-            return " missed";
+            return " touched";
         }
         return "";
     }

@@ -48,12 +48,13 @@ public class GameHub : Hub
         }
     }
 
-    public async Task Play(int coordX, int coordY)
+    public async Task<char> Play(int coordX, int coordY)
     {
         Memory memory = Memory.GetInstance();
         User user = memory.users[Context.ConnectionId];
         await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
         user.Game.switchPlayingPlayer();
         await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
+        return 'X';
     }
 }
