@@ -69,6 +69,8 @@ public class GameHub : Hub
     {
         Memory memory = Memory.GetInstance();
         User user = memory.users[Context.ConnectionId];
+        if (!user.Equals(user.Game.playingPlayer))
+            throw new InvalidOperationException("Ce n'est pas votre tour de jouer.");
         if (user.Game.aiMode)
         {
             List<int> coords = user.Game.playAI();
@@ -81,7 +83,7 @@ public class GameHub : Hub
         }
 
         await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
-        return 'X';
+        return user.opponent.board.IsHit(coordX, coordY);
     }
 
     public async Task CreateNewGame()
