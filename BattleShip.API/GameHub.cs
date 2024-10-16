@@ -52,12 +52,24 @@ public class GameHub : Hub
     {
         Memory memory = Memory.GetInstance();
         User user = memory.users[Context.ConnectionId];
-        if (!user.Equals(user.Game.playingPlayer))
-            throw new InvalidOperationException("Ce n'est pas votre tour de jouer.");
-        await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
-        user.Game.switchPlayingPlayer();
-        await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
-        return user.opponent.board.IsHit(coordX, coordY);
+        if (user.Game.state == GameState.PLAYING)
+        {
+            if (!user.Equals(user.Game.playingPlayer))
+                throw new InvalidOperationException("Ce n'est pas votre tour de jouer.");
+            bool result = user.opponent.board.IsHit(coordX, coordY);
+            if (user.Game.AddCoords(user, coordX, coordY, result) == 17)
+            { 
+                user.Game.state = GameState.RESULT;
+            }
+            await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
+            user.Game.switchPlayingPlayer();
+            await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
+            return result ? 'O' : 'X';
+        }
+        else
+        {
+            throw new InvalidOperationException("La partie n'est pas en cours");
+        }
     }
 
     public async Task CreateNewGame()

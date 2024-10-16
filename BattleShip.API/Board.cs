@@ -101,9 +101,9 @@ namespace BattleShip.API
             return true;
         }
 
-        public char IsHit(int x, int y)
+        public bool IsHit(int x, int y)
         {
-            return grid[x][y] != '\0' ? 'O' : 'X';
+            return grid[x][y] != '\0';
         }
     }
 }
