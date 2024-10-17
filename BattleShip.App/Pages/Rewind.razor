@@ -1,0 +1,322 @@
+@page "/histo"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+<PageTitle>BattleShip</PageTitle>
+
+<div class="container">
+    <div class="content">
+        @if (_isLoading)
+        {
+            <script>
+                function copyToClipboard(text) {
+                    const tempInput = document.createElement('input');
+                    tempInput.value = text;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    alert('URL copied to clipboard');
+                }
+            </script>
+            <div>
+                <h1>GameID: @(gameID)</h1>
+                <a href="javascript:void(0)" onclick="copyToClipboard('@(Config.WEB_URL)/play?gameid=@(gameID)')">
+                    <p>@(Config.WEB_URL)/play?gameid=@(gameID)</p>
+                </a>
+                <h2>Waiting for player</h2>
+                <span class="loader"></span>
+            </div>
+            
+        }
+        else
+        {
+            @if (ended != 0)
+            {
+                if (ended == 1)
+                {
+                    <h1>Your WON!</h1>
+                }
+                else
+                {
+                    <h1>Your LOSE!</h1>
+                }
+                <div class="inline">
+                    <button class="play-button" @onclick="() => AskNewGame()">Start a new game</button>
+                </div>
+            } else
+            {
+                @if (myTurn)
+                {
+                    <h1>Your turn</h1>
+                }
+                else
+                {
+                    <h1>Opponent turn</h1>
+                }
+            }
+            
+
+            <div class="inline">
+                @* opponent grid *@
+                <div>
+                    <h1>Opponent grid</h1>
+                    <div class="game-grid">
+                        @for (int row = 0; row < gridRows; row++)
+                        {
+                            <div class="grid-row">
+                                @for (int col = 0; col < gridCols; col++)
+                                {
+                                    var localRow = row;
+                                    var localCol = col;
+                                    <div class="grid-cell@(GetCellState(_opponentTable, row, col)) @(myTurn ? "" : " disabled")"
+                                         @onclick="() => HandleCellClick(localRow, localCol)"></div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @* player grid *@
+                <div>
+                    <h1>Your grid</h1>
+                    <div class="game-grid">
+                        @for (int row = 0; row < gridRows; row++)
+                        {
+                            <div class="grid-row">
+                                @for (int col = 0; col < gridCols; col++)
+                                {
+                                    <div class="grid-cell@(GetCellState(_playerTable, row, col) + GetCellPlacementState(row, col))"></div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <div class="legends inline">
+                <div>
+                    <div class="grid-cell"></div>
+                    <p>Not shotted</p>
+                </div>
+                <div>
+                    <div class="grid-cell missed"></div>
+                    <p>Shot missed</p>
+                </div>
+                <div>
+                    <div class="grid-cell touched"></div>
+                    <p>Touched boat</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private bool _isLoading = true;
+    private String gameID = GenerateRandomString();
+    private String aiMode = "";
+    private int gridRows = 20;
+    private int gridCols = 20;
+
+    private List<List<char>> _playerPlacement;
+    private List<List<char>> _playerTable;
+    private List<List<char>> _opponentTable;
+
+    private bool myTurn = false;
+    private int ended = 0;
+    
+    private HubConnection _hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _playerPlacement = GenerateEmptyPlate(gridRows, gridCols);
+        _playerTable = GenerateEmptyPlate(gridRows, gridCols);
+        _opponentTable = GenerateEmptyPlate(gridRows, gridCols);
+        
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        if (queryParams.TryGetValue("gameid", out var gameID))
+        {
+            this.gameID = gameID.ToString();
+        }
+        
+        if (queryParams.TryGetValue("gridSize", out var gridSize))
+        {
+            int queryGridSize = Int32.Parse(gridSize.ToString());
+            if (queryGridSize >= 6 && queryGridSize <= 20)
+            {
+                gridCols = queryGridSize;
+                gridRows = queryGridSize;
+            }
+        }
+
+        aiMode = queryParams.GetValueOrDefault("aiMode", "0");
+        
+
+        if (this.gameID.Length > 0)
+        {
+
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri(Config.API_URL))
+                .Build();
+
+            _hubConnection.On<List<List<char>>, int, int>("StartGame", (myPlacement, gameGridRows, gameGridCols) =>
+            {
+                Console.WriteLine("StartGame");
+                gridRows = gameGridRows;
+                gridCols = gameGridCols;
+                _isLoading = false;
+                _playerPlacement = myPlacement;
+                
+                InvokeAsync(StateHasChanged);
+            });
+            _hubConnection.On("YourTurn", () =>
+            {
+                Console.WriteLine("YourTurn");
+                myTurn = true;
+                
+                InvokeAsync(StateHasChanged);
+            });
+            _hubConnection.On<int, int>("Play", (x, y) =>
+            {
+                Console.WriteLine("Play");
+                _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'X' : 'O';
+
+                checkWin();
+                InvokeAsync(StateHasChanged);
+            });
+            _hubConnection.On<string>("OpenNewGame", async gameid =>
+            {
+                await JS.InvokeVoidAsync("window.location.replace", $"/play?gameid={gameid}");
+            });
+            
+            await _hubConnection.StartAsync();
+            await _hubConnection.SendAsync("Join", this.gameID, gridRows, gridCols);
+            
+            if (aiMode != "0")
+                await _hubConnection.SendAsync("AskAIToJoin", aiMode);
+        }
+        Console.WriteLine("Setup done");
+    }
+
+    private async void HandleCellClick(int row, int col)
+    {
+        if (myTurn && _opponentTable[row][col] == '\0')
+        {
+            myTurn = false;
+            
+            char result = await _hubConnection.InvokeAsync<char>("Play", row, col);
+            _opponentTable[row][col] = result;
+            
+            InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private String GetCellState(List<List<char>> table, int row, int col)
+    {
+        if (table[row][col] == 'X')
+        {
+            return " missed";
+        }
+        if (table[row][col] == 'O')
+        {
+            return " touched";
+        }
+        return "";
+    }
+    
+    private static string GenerateRandomString(int length = 6)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var random = new Random();
+        return new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
+    private static List<List<char>> GenerateEmptyPlate(int width, int height)
+    {
+        List<List<char>> grid = new List<List<char>>();
+
+        for (int i = 0; i < width; i++)
+        {
+            List<char> row = new List<char>();
+            for (int j = 0; j < height; j++)
+            {
+                row.Add('\0');
+            }
+            grid.Add(row);
+        }
+
+        return grid;
+    }
+
+    private void checkWin()
+    {
+        if (_playerTable.SelectMany(row => row).Count(c => c == 'O') >= 17)
+        {
+            myTurn = true;
+            ended = 2;
+        } else if (_opponentTable.SelectMany(row => row).Count(c => c == 'O') >= 17)
+        {
+            myTurn = true;
+            ended = 1;
+        }
+    }
+
+    private async void AskNewGame()
+    {
+        if (aiMode == "0")
+        {
+            await _hubConnection.InvokeAsync("CreateNewGame");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("window.location.replace", $"/play?aiMode={aiMode}");
+        }
+    }
+
+    private String GetCellPlacementState(int row, int col)
+    {
+        if (_playerPlacement[row][col] == '\0')
+            return "";
+
+        var boatPart = _playerPlacement[row][col];
+
+        // Determine if it's an end or middle part
+        bool isEnd = IsBoatEnd(row, col, boatPart);
+
+        // Determine the rotation based on the surrounding cells
+        string rotationClass = GetBoatRotation(row, col, boatPart);
+
+        return (isEnd ? " ship-end" : " ship-middle") + " " + rotationClass;
+    }
+   
+    private bool IsBoatEnd(int row, int col, char boatPart)
+    {
+        // Check surrounding cells to determine if the current cell is at the end of the boat
+        // Adjust conditions to define what constitutes an 'end' (e.g., boundary or different cell).
+        int count = 0;
+        if (row > 0 && _playerPlacement[row - 1][col] == boatPart) count++;
+        if (row < gridRows-1 && _playerPlacement[row + 1][col] == boatPart) count++;
+        if (col > 0 && _playerPlacement[row][col - 1] == boatPart) count++;
+        if (col < gridCols-1 && _playerPlacement[row][col + 1] == boatPart) count++;
+        return count == 1;
+    }
+
+    private string GetBoatRotation(int row, int col, char boatPart)
+    {
+        if (row > 0 && _playerPlacement[row - 1][col] == boatPart)
+            return "rotate-down"; // Boat is vertical, down
+        if (row < gridRows - 1 && _playerPlacement[row + 1][col] == boatPart)
+            return "rotate-up";   // Boat is vertical, up
+        if (col > 0 && _playerPlacement[row][col - 1] == boatPart)
+            return "rotate-right"; // Boat is horizontal, right
+        if (col < gridCols - 1 && _playerPlacement[row][col + 1] == boatPart)
+            return "rotate-left";  // Boat is horizontal, left
+
+        return "rotate-right"; // Default rotation
+    }
+}
