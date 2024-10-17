@@ -83,8 +83,9 @@ public class GameHub : Hub
         if (user.Game.state == GameState.PLAYING)
         {
             if (!user.Equals(user.Game.playingPlayer))
-                throw new InvalidOperationException("Ce n'est pas votre tour de jouer.");
+                throw new InvalidOperationException("It's not your turn!");
             bool result = user.opponent.board.IsHit(coordX, coordY);
+            user.plays.Add([coordX, coordY, result? 1 : 0]);
             if (user.Game.AddCoords(user, coordX, coordY, result) == 17)
             { 
                 user.Game.state = GameState.RESULT;
@@ -92,6 +93,8 @@ public class GameHub : Hub
             if (user.Game.aiMode)
             {
                 List<int> coords = user.Game.playAI();
+                bool aiResult = user.board.IsHit(coords[0], coords[1]);
+                user.Game.userB.plays.Add([coords[0], coords[1], aiResult ? 1 : 0]);
                 await Clients.Client(user.id).SendAsync("Play", coords[0], coords[1]);
             }
             else
@@ -104,7 +107,7 @@ public class GameHub : Hub
         }
         else
         {
-            throw new InvalidOperationException("La partie n'est pas en cours");
+            throw new InvalidOperationException("The game is not playing");
         }
     }
 

@@ -10,9 +10,8 @@
             <div>
                 <label for="ai-difficulty">Choose AI difficulty:</label>
                 <select id="ai-difficulty" @bind="aiDiff">
-                    <option value="1">Easy</option>
-                    <option value="2">Medium</option>
-                    <option value="3">Hard</option>
+                    <option value="1">Dumb</option>
+                    <option value="2">Smart</option>
                 </select>
                 <a href="/play?aiMode=@aiDiff">
                     <button class="play-button" disabled="@(string.IsNullOrWhiteSpace(aiDiff))">Play against AI</button>
