@@ -44,6 +44,7 @@
                 }
                 <div class="inline">
                     <button class="play-button" @onclick="() => AskNewGame()">Start a new game</button>
+                    <a href="/rewind?gameid=@gameID" target="_blank"><button class="play-button">Rewind the game</button></a>
                 </div>
             } else
             {
@@ -107,10 +108,6 @@
                 <div>
                     <div class="grid-cell touched"></div>
                     <p>Touched boat</p>
-                </div>
-                <div>
-                    <div class="grid-cell placed"></div>
-                    <p>Your boat</p>
                 </div>
             </div>
         }
@@ -208,13 +205,14 @@
 
     private async void HandleCellClick(int row, int col)
     {
-        if (myTurn && _opponentTable[row][col] == '\0')
+        if (ended == 0 && myTurn && _opponentTable[row][col] == '\0')
         {
             myTurn = false;
             
             char result = await _hubConnection.InvokeAsync<char>("Play", row, col);
             _opponentTable[row][col] = result;
             
+            checkWin();
             InvokeAsync(StateHasChanged);
         }
     }

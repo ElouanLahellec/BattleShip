@@ -31,6 +31,10 @@
     background-color: red;
 }
 
+.lastplay {
+    background-color: yellow;
+}
+
 .disabled {
     opacity: 0.2;
 }

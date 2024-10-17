@@ -6,6 +6,22 @@ using Microsoft.AspNetCore.SignalR;
 public class GameHub : Hub
 {
 
+    public async Task Rewind(string gameid)
+    {
+        Console.WriteLine($"Asked to rewind game {gameid}");
+        Memory memory = Memory.GetInstance();
+        if (memory.rooms.ContainsKey(gameid))
+        {
+            Console.WriteLine($"found game {gameid}");
+            Game game = memory.rooms[gameid];
+            if (game.state == GameState.RESULT)
+            {
+                Console.WriteLine($"Sending data {gameid}");
+                await Clients.Client(Context.ConnectionId).SendAsync("Rewind", game.userA.board.grid, game.userB.board.grid, game.userA.plays, game.userB.plays, game.gridRows, game.gridCols);
+            }
+        }
+    }
+    
     public async Task Join(string room, int  gridRows, int gridCols)
     {
         Memory memory = Memory.GetInstance();
@@ -87,7 +103,7 @@ public class GameHub : Hub
                 throw new InvalidOperationException("It's not your turn!");
             bool result = user.opponent.board.IsHit(coordX, coordY);
             user.plays.Add([coordX, coordY, result? 1 : 0]);
-            if (user.Game.AddCoords(user, coordX, coordY, result) == 17)
+            if (user.Game.AddCoords(user, coordX, coordY, result) >= 17)
             { 
                 user.Game.state = GameState.RESULT;
             }

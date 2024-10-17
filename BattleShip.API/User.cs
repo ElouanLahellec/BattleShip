@@ -27,7 +27,7 @@ public class User
         int counter = 0;
         for (int i = 0; i < plays.Count; i++)
         {
-            if (plays[0][2] == 1) counter++;
+            if (plays[i][2] == 1) counter++;
         }
         
         return counter;

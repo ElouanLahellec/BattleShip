@@ -33,9 +33,16 @@
                 </a>
             </div>
             <div>
-                <input @bind="gameID" placeholder="Enter Game ID" />
+                <input @bind="gameID" placeholder="Enter Room ID" />
                 <a href="/play?gameid=@gameID">
                     <button class="play-button" disabled="@(string.IsNullOrWhiteSpace(gameID))">Join room</button>
+                </a>
+            </div>
+            <div>
+
+                <input @bind="gameID" placeholder="Enter Game ID" />
+                <a href="/rewind?gameid=@gameID">
+                    <button class="play-button" disabled="@(string.IsNullOrWhiteSpace(gameID))">Rewind the game</button>
                 </a>
             </div>
         </div>
