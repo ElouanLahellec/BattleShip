@@ -59,33 +59,14 @@
             
 
             <div class="inline">
-                <div class="legends">
-                    <div>
-                        <div class="grid-cell"></div>
-                        <p>Not shotted</p>
-                    </div>
-                    <div>
-                        <div class="grid-cell missed"></div>
-                        <p>Shot missed</p>
-                    </div>
-                    <div>
-                        <div class="grid-cell touched"></div>
-                        <p>Touched boat</p>
-                    </div>
-                    <div>
-                        <div class="grid-cell placed"></div>
-                        <p>Your boat</p>
-                    </div>
-                </div>
-                
                 @* opponent grid *@
                 <div>
                     <h1>Opponent grid</h1>
                     <div class="game-grid">
-                        @for (int row = 0; row < _gridRows; row++)
+                        @for (int row = 0; row < gridRows; row++)
                         {
                             <div class="grid-row">
-                                @for (int col = 0; col < _gridCols; col++)
+                                @for (int col = 0; col < gridCols; col++)
                                 {
                                     var localRow = row;
                                     var localCol = col;
@@ -101,16 +82,35 @@
                 <div>
                     <h1>Your grid</h1>
                     <div class="game-grid">
-                        @for (int row = 0; row < _gridRows; row++)
+                        @for (int row = 0; row < gridRows; row++)
                         {
-                        <div class="grid-row">
-                            @for (int col = 0; col < _gridCols; col++)
-                            {
-                            <div class="grid-cell@(GetCellState(_playerTable, row, col) + GetCellPlacementState(row, col))"></div>
-                            }
-                        </div>
+                            <div class="grid-row">
+                                @for (int col = 0; col < gridCols; col++)
+                                {
+                                    <div class="grid-cell@(GetCellState(_playerTable, row, col) + GetCellPlacementState(row, col))"></div>
+                                }
+                            </div>
                         }
                     </div>
+                </div>
+            </div>
+            
+            <div class="legends inline">
+                <div>
+                    <div class="grid-cell"></div>
+                    <p>Not shotted</p>
+                </div>
+                <div>
+                    <div class="grid-cell missed"></div>
+                    <p>Shot missed</p>
+                </div>
+                <div>
+                    <div class="grid-cell touched"></div>
+                    <p>Touched boat</p>
+                </div>
+                <div>
+                    <div class="grid-cell placed"></div>
+                    <p>Your boat</p>
                 </div>
             </div>
         }
@@ -121,8 +121,8 @@
     private bool _isLoading = true;
     private String gameID = GenerateRandomString();
     private String aiMode = "";
-    private int _gridRows = 10;  // Number of rows for the grid
-    private int _gridCols = 10;  // Number of columns for the grid
+    private int gridRows = 20;
+    private int gridCols = 20;
 
     private List<List<char>> _playerPlacement;
     private List<List<char>> _playerTable;
@@ -135,9 +135,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _playerPlacement = GenerateEmptyPlate(_gridRows, _gridCols);
-        _playerTable = GenerateEmptyPlate(_gridRows, _gridCols);
-        _opponentTable = GenerateEmptyPlate(_gridRows, _gridCols);
+        _playerPlacement = GenerateEmptyPlate(gridRows, gridCols);
+        _playerTable = GenerateEmptyPlate(gridRows, gridCols);
+        _opponentTable = GenerateEmptyPlate(gridRows, gridCols);
         
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
@@ -145,6 +145,16 @@
         if (queryParams.TryGetValue("gameid", out var gameID))
         {
             this.gameID = gameID.ToString();
+        }
+        
+        if (queryParams.TryGetValue("gridSize", out var gridSize))
+        {
+            int queryGridSize = Int32.Parse(gridSize.ToString());
+            if (queryGridSize >= 6 && queryGridSize <= 20)
+            {
+                gridCols = queryGridSize;
+                gridRows = queryGridSize;
+            }
         }
 
         aiMode = queryParams.GetValueOrDefault("aiMode", "0");
@@ -157,9 +167,11 @@
                 .WithUrl(NavigationManager.ToAbsoluteUri(Config.API_URL))
                 .Build();
 
-            _hubConnection.On<List<List<char>>>("StartGame", (myPlacement) =>
+            _hubConnection.On<List<List<char>>, int, int>("StartGame", (myPlacement, gameGridRows, gameGridCols) =>
             {
                 Console.WriteLine("StartGame");
+                gridRows = gameGridRows;
+                gridCols = gameGridCols;
                 _isLoading = false;
                 _playerPlacement = myPlacement;
                 
@@ -186,7 +198,8 @@
             });
             
             await _hubConnection.StartAsync();
-            await _hubConnection.SendAsync("Join", this.gameID);
+            await _hubConnection.SendAsync("Join", this.gameID, gridRows, gridCols);
+            
             if (aiMode != "0")
                 await _hubConnection.SendAsync("AskAIToJoin", aiMode);
         }
@@ -291,9 +304,9 @@
         // Adjust conditions to define what constitutes an 'end' (e.g., boundary or different cell).
         int count = 0;
         if (row > 0 && _playerPlacement[row - 1][col] == boatPart) count++;
-        if (row < _gridRows-1 && _playerPlacement[row + 1][col] == boatPart) count++;
+        if (row < gridRows-1 && _playerPlacement[row + 1][col] == boatPart) count++;
         if (col > 0 && _playerPlacement[row][col - 1] == boatPart) count++;
-        if (col < _gridCols-1 && _playerPlacement[row][col + 1] == boatPart) count++;
+        if (col < gridCols-1 && _playerPlacement[row][col + 1] == boatPart) count++;
         return count == 1;
     }
 
@@ -301,11 +314,11 @@
     {
         if (row > 0 && _playerPlacement[row - 1][col] == boatPart)
             return "rotate-down"; // Boat is vertical, down
-        if (row < _gridRows - 1 && _playerPlacement[row + 1][col] == boatPart)
+        if (row < gridRows - 1 && _playerPlacement[row + 1][col] == boatPart)
             return "rotate-up";   // Boat is vertical, up
         if (col > 0 && _playerPlacement[row][col - 1] == boatPart)
             return "rotate-right"; // Boat is horizontal, right
-        if (col < _gridCols - 1 && _playerPlacement[row][col + 1] == boatPart)
+        if (col < gridCols - 1 && _playerPlacement[row][col + 1] == boatPart)
             return "rotate-left";  // Boat is horizontal, left
 
         return "rotate-right"; // Default rotation

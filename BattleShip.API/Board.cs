@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Security.Principal;
 
 namespace BattleShip.API
 {
@@ -10,22 +11,20 @@ namespace BattleShip.API
        
         public Board() 
         {
-            grid = EmptyGrid();
+            grid = new List<List<char>>();
         }
 
-        public List<List<char>> EmptyGrid()
+        public void init(int width, int height)
         {
-            List<List<char>> grid = new List<List<char>>();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < width; i++)
             {
                 List<char> line = new List<char>();
-                for (int j = 0; j < 10; j++)
+                for (int j = 0; j < height; j++)
                 {
                     line.Add('\0');
                 }
                 grid.Add(line);
             }
-            return grid;
         }
 
         public List<List<char>> PlaceRdmBoats()
@@ -43,10 +42,10 @@ namespace BattleShip.API
                     int size = BoatSizes[i];
                     char boat = BoatNames[i];
                     bool horizontal = random.Next(2) == 0;
-                    int line = random.Next(10);
-                    int column = random.Next(10);
+                    int line = random.Next(grid.Count);
+                    int column = random.Next(grid[0].Count);
 
-                    if (PeutPlacerBateau(line, column, size, horizontal))
+                    if (CanPlaceBoat(line, column, size, horizontal))
                     {
                         PlaceBoat(line, column, size, horizontal, boat);
                         place = true;
@@ -74,11 +73,11 @@ namespace BattleShip.API
             return grid;
         }
 
-        private bool PeutPlacerBateau(int x, int y, int size, bool horizontal)
+        private bool CanPlaceBoat(int x, int y, int size, bool horizontal)
         {
             if (horizontal)
             {
-                if (y + size > 10)
+                if (y + size > grid[0].Count)
                     return false;
 
                 for (int i = 0; i < size; i++)
@@ -89,7 +88,7 @@ namespace BattleShip.API
             }
             else
             {
-                if (x + size > 10)
+                if (x + size > grid.Count)
                     return false;
 
                 for (int i = 0; i < size; i++)

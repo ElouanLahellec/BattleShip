@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 public class GameHub : Hub
 {
 
-    public async Task Join(string room)
+    public async Task Join(string room, int  gridRows, int gridCols)
     {
         Memory memory = Memory.GetInstance();
         if (!memory.users.ContainsKey(Context.ConnectionId))
@@ -18,8 +18,10 @@ public class GameHub : Hub
         Game game = null;
         if (!memory.rooms.ContainsKey(room))
         {
-            memory.rooms.Add(room, new Game(room, user));
+            memory.rooms.Add(room, new Game(room, user, gridRows, gridCols));
             game = memory.rooms[room];
+            game.gridRows = gridRows;
+            game.gridCols = gridCols;
         }
         else
         {
@@ -65,11 +67,10 @@ public class GameHub : Hub
             Console.WriteLine($"Sending StartGame to userA with ID: {game.userA.id}");
             Console.WriteLine($"Sending StartGame to userB with ID: {game.userB.id}");
 
-            game.userA.board.PlaceRdmBoats();
-            game.userB.board.PlaceRdmBoats();
-            await Clients.Client(game.userA.id).SendAsync("StartGame", game.userA.board.grid);
+            game.initBoards();
+            await Clients.Client(game.userA.id).SendAsync("StartGame", game.userA.board.grid, game.gridRows, game.gridCols);
             if (!game.aiMode)
-                await Clients.Client(game.userB.id).SendAsync("StartGame", game.userB.board.grid);
+                await Clients.Client(game.userB.id).SendAsync("StartGame", game.userB.board.grid, game.gridRows, game.gridCols);
             
             await Clients.Client(game.playingPlayer.id).SendAsync("YourTurn");
             Console.WriteLine("Game started");

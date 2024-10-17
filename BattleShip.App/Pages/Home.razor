@@ -8,17 +8,27 @@
         <hr/>
         <div class="inline">
             <div>
-                <label for="ai-difficulty">Choose AI difficulty:</label>
-                <select id="ai-difficulty" @bind="aiDiff">
-                    <option value="1">Dumb</option>
-                    <option value="2">Smart</option>
-                </select>
-                <a href="/play?aiMode=@aiDiff">
+                <div class="inline">
+                    <label for="grid-size">Grid size:</label>
+                    <input type="number" id="grid-size" @bind="gridSize" min="6" max="20"/>
+                </div>
+                <div class="inline">
+                    <label for="ai-difficulty">Choose AI difficulty:</label>
+                    <select id="ai-difficulty" @bind="aiDiff">
+                        <option value="1">Dumb</option>
+                        <option value="2">Smart</option>
+                    </select>
+                </div>
+                <a href="/play?aiMode=@aiDiff&gridSize=@gridSize">
                     <button class="play-button" disabled="@(string.IsNullOrWhiteSpace(aiDiff))">Play against AI</button>
                 </a>
             </div>
             <div>
-                <a href="/play">
+                <div class="inline">
+                    <label for="grid-size">Grid size:</label>
+                    <input type="number" id="grid-size" @bind="gridSize" min="6" max="20"/>
+                </div>
+                <a href="/play?gridSize=@gridSize">
                     <button class="play-button">Create multiplayer room</button>
                 </a>
             </div>
@@ -33,6 +43,7 @@
 </div>
 
 @code {
-private string gameID = string.Empty;
-private string aiDiff = string.Empty; 
+    private string gameID = string.Empty;
+    private string aiDiff = "1";
+    private int gridSize = 10;
 }

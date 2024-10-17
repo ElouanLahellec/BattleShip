@@ -16,9 +16,12 @@ public class Game
     
     public bool aiMode { get; set; }
     public int aiDiff { get; set; }
+    
+    public int gridRows = 10;
+    public int gridCols = 10;
 
 
-    public Game(String id, User userA)
+    public Game(String id, User userA, int gridRows, int gridCols)
     {
         this.id = id;
         this.userA = userA;
@@ -42,6 +45,14 @@ public class Game
         List<int> coords = [coordX, coordY, isHit ? 1 : 0];
         user.plays.Append(coords);
         return user.countHits();
+    }
+
+    public void initBoards()
+    {
+        userA.board.init(gridRows, gridCols);
+        userB.board.init(gridRows, gridCols);
+        userA.board.PlaceRdmBoats();
+        userB.board.PlaceRdmBoats();
     }
 
     public List<int> playAI()
