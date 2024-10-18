@@ -1,5 +1,6 @@
 # BattleShip
-
+Chad Estoup--Streiff
+Elouan Lahellec
 
 ## Objectives:  
 
