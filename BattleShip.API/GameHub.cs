@@ -97,35 +97,39 @@ public class GameHub : Hub
     {
         Memory memory = Memory.GetInstance();
         User user = memory.users[Context.ConnectionId];
-        if (user.Game.state == GameState.PLAYING)
+        Game game = user.Game;
+        if (game.state == GameState.PLAYING)
         {
-            if (!user.Equals(user.Game.playingPlayer))
+            if (!user.Equals(game.playingPlayer))
                 throw new InvalidOperationException("It's not your turn!");
             bool result = user.opponent.board.IsHit(coordX, coordY);
             user.plays.Add([coordX, coordY, result? 1 : 0]);
-            if (user.Game.AddCoords(user, coordX, coordY, result) >= 17)
+            if (game.AddCoords(user, coordX, coordY, result) >= 17)
             { 
-                user.Game.state = GameState.RESULT;
+                game.state = GameState.RESULT;
             }
-            if (user.Game.state == GameState.PLAYING && user.Game.aiMode)
+            if (game.aiMode)
             {
-                List<int> coords = user.Game.playAI();
-                bool aiResult = user.board.IsHit(coords[0], coords[1]);
-                user.Game.userB.plays.Add([coords[0], coords[1], aiResult ? 1 : 0]);
-                await Clients.Client(user.id).SendAsync("Play", coords[0], coords[1]);
-                
-                if (user.Game.AddCoords(user.Game.userB, coords[0], coords[1], aiResult) >= 17)
-                { 
-                    user.Game.state = GameState.RESULT;
+                if (game.state == GameState.PLAYING)
+                {
+                    List<int> coords = game.playAI();
+                    bool aiResult = user.board.IsHit(coords[0], coords[1]);
+                    game.userB.plays.Add([coords[0], coords[1], aiResult ? 1 : 0]);
+                    await Clients.Client(user.id).SendAsync("Play", coords[0], coords[1]);
+
+                    if (game.AddCoords(game.userB, coords[0], coords[1], aiResult) >= 17)
+                    {
+                        game.state = GameState.RESULT;
+                    }
                 }
             }
             else
             {
                 await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
-                user.Game.switchPlayingPlayer();
+                game.switchPlayingPlayer();
             }
-            if (user.Game.state == GameState.PLAYING)
-                await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
+            if (game.state == GameState.PLAYING)
+                await Clients.Client(game.playingPlayer.id).SendAsync("YourTurn");
             return result ? 'O' : 'X';
         }
         else
