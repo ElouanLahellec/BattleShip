@@ -67,3 +67,27 @@
 .rotate-down {
     transform: rotate(90deg);
 }
+
+.logs {
+    border: gray solid 1px;
+    border-radius: 5px;
+    margin: 5px;
+    background-color: #7e7e7e50;
+    height: 80vh;
+    width: 25vw;
+
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Hide horizontal overflow */
+}
+
+.logs .log-entry {
+    width: 100%;
+    text-align: left;
+}
+.logs .log-entry:nth-child(odd) {
+    background-color: #d3d3d3; /* Light gray for odd entries */
+}
+
+.logs .log-entry:nth-child(even) {
+    background-color: #ffffff; /* White for even entries */
+}

@@ -60,6 +60,19 @@
             
 
             <div class="inline">
+                
+                <div>
+                    <div class="logs">
+                        <h3>Logs</h3>
+                        @foreach (var log in logs)
+                        {
+                            <div class="log-entry">
+                                <p>@log</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
                 @* opponent grid *@
                 <div>
                     <h1>Opponent grid</h1>
@@ -94,20 +107,20 @@
                         }
                     </div>
                 </div>
-            </div>
-            
-            <div class="legends inline">
-                <div>
-                    <div class="grid-cell"></div>
-                    <p>Not shotted</p>
-                </div>
-                <div>
-                    <div class="grid-cell missed"></div>
-                    <p>Shot missed</p>
-                </div>
-                <div>
-                    <div class="grid-cell touched"></div>
-                    <p>Touched boat</p>
+
+                <div class="legends">
+                    <div>
+                        <div class="grid-cell"></div>
+                        <p>Not shotted</p>
+                    </div>
+                    <div>
+                        <div class="grid-cell missed"></div>
+                        <p>Shot missed</p>
+                    </div>
+                    <div>
+                        <div class="grid-cell touched"></div>
+                        <p>Touched boat</p>
+                    </div>
                 </div>
             </div>
         }
@@ -120,6 +133,8 @@
     private String aiMode = "";
     private int gridRows = 20;
     private int gridCols = 20;
+
+    private List<string> logs = new ();
 
     private List<List<char>> _playerPlacement;
     private List<List<char>> _playerTable;
@@ -185,7 +200,7 @@
             {
                 Console.WriteLine("Play");
                 _playerTable[x][y] = _playerPlacement[x][y] == '\0' ? 'X' : 'O';
-
+                writeLog($"Opponent shot in {x} : {y} and " + (_playerTable[x][y] == 'X' ? "missed 💧" : "touched 💥 "));
                 checkWin();
                 InvokeAsync(StateHasChanged);
             });
@@ -211,6 +226,7 @@
             
             char result = await _hubConnection.InvokeAsync<char>("Play", row, col);
             _opponentTable[row][col] = result;
+            writeLog($"You shot in {row}:{col} and " + (result == 'X' ? "missed 💧" : "touched 💥"));
             
             checkWin();
             InvokeAsync(StateHasChanged);
@@ -261,10 +277,12 @@
         {
             myTurn = true;
             ended = 2;
+            writeLog("You lose! 💀");
         } else if (_opponentTable.SelectMany(row => row).Count(c => c == 'O') >= 17)
         {
             myTurn = true;
             ended = 1;
+            writeLog("You won! 🏆");
         }
     }
 
@@ -320,5 +338,11 @@
             return "rotate-left";  // Boat is horizontal, left
 
         return "rotate-right"; // Default rotation
+    }
+
+    private void writeLog(String log)
+    {
+        DateTime date = DateTime.Now;
+        logs.Insert(0, date.ToString("HH:mm:ss") + " > " + log);
     }
 }

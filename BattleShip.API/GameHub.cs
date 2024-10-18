@@ -107,7 +107,7 @@ public class GameHub : Hub
             { 
                 user.Game.state = GameState.RESULT;
             }
-            if (user.Game.aiMode)
+            if (user.Game.state == GameState.PLAYING && user.Game.aiMode)
             {
                 List<int> coords = user.Game.playAI();
                 bool aiResult = user.board.IsHit(coords[0], coords[1]);
@@ -119,7 +119,8 @@ public class GameHub : Hub
                 await Clients.Client(user.opponent.id).SendAsync("Play", coordX, coordY);
                 user.Game.switchPlayingPlayer();
             }
-            await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
+            if (user.Game.state == GameState.PLAYING)
+                await Clients.Client(user.Game.playingPlayer.id).SendAsync("YourTurn");
             return result ? 'O' : 'X';
         }
         else
