@@ -104,7 +104,7 @@ public class GameHub : Hub
                 throw new InvalidOperationException("It's not your turn!");
             bool result = user.opponent.board.IsHit(coordX, coordY);
             user.plays.Add([coordX, coordY, result? 1 : 0]);
-            if (game.AddCoords(user, coordX, coordY, result) >= 17)
+            if (game.AddCoords(user, coordX, coordY, result) >= 15)
             { 
                 game.state = GameState.RESULT;
             }
@@ -117,7 +117,7 @@ public class GameHub : Hub
                     game.userB.plays.Add([coords[0], coords[1], aiResult ? 1 : 0]);
                     await Clients.Client(user.id).SendAsync("Play", coords[0], coords[1]);
 
-                    if (game.AddCoords(game.userB, coords[0], coords[1], aiResult) >= 17)
+                    if (game.AddCoords(game.userB, coords[0], coords[1], aiResult) >= 15)
                     {
                         game.state = GameState.RESULT;
                     }

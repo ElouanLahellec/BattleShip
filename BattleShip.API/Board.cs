@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security.Principal;
@@ -29,14 +29,13 @@ namespace BattleShip.API
 
         public List<List<char>> PlaceRdmBoats()
         {
-            int[] BoatSizes = { 5, 4, 3, 3, 2 };
-            char[] BoatNames = { 'A', 'B', 'C', 'D', 'E' };
+            int[] BoatSizes = { 4, 3, 3, 2, 2, 1 };
+            char[] BoatNames = { 'A', 'B', 'C', 'D', 'E', 'F' };
             Random random = new Random();
 
             for (int i = 0; i < BoatSizes.Length; i++)
             {
                 bool place = false;
-
                 while (!place)
                 {
                     int size = BoatSizes[i];
