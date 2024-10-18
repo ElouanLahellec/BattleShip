@@ -113,6 +113,11 @@ public class GameHub : Hub
                 bool aiResult = user.board.IsHit(coords[0], coords[1]);
                 user.Game.userB.plays.Add([coords[0], coords[1], aiResult ? 1 : 0]);
                 await Clients.Client(user.id).SendAsync("Play", coords[0], coords[1]);
+                
+                if (user.Game.AddCoords(user.Game.userB, coords[0], coords[1], aiResult) >= 17)
+                { 
+                    user.Game.state = GameState.RESULT;
+                }
             }
             else
             {

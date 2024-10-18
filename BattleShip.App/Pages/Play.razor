@@ -206,7 +206,7 @@
             });
             _hubConnection.On<string>("OpenNewGame", async gameid =>
             {
-                await JS.InvokeVoidAsync("window.location.replace", $"/play?gameid={gameid}");
+                await JS.InvokeVoidAsync("window.location.replace", $"/play?gameid={gameid}&gridSize={gridCols}");
             });
             
             await _hubConnection.StartAsync();
@@ -294,7 +294,7 @@
         }
         else
         {
-            await JS.InvokeVoidAsync("window.location.replace", $"/play?aiMode={aiMode}");
+            await JS.InvokeVoidAsync("window.location.replace", $"/play?aiMode={aiMode}&gridSize={gridCols}");
         }
     }
 
