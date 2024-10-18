@@ -273,12 +273,12 @@
 
     private void checkWin()
     {
-        if (_playerTable.SelectMany(row => row).Count(c => c == 'O') >= 17)
+        if (_playerTable.SelectMany(row => row).Count(c => c == 'O') >= 15)
         {
             myTurn = true;
             ended = 2;
             writeLog("You lose! 💀");
-        } else if (_opponentTable.SelectMany(row => row).Count(c => c == 'O') >= 17)
+        } else if (_opponentTable.SelectMany(row => row).Count(c => c == 'O') >= 15)
         {
             myTurn = true;
             ended = 1;
